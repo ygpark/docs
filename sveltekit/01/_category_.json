@@ -1,0 +1,10 @@
+{
+  "label": "1장 스벨트와 스벨트킷 소개",
+  "position": 10,
+  "link": {
+    "type": "generated-index",
+    "description": "첫 번째 장에서는 스벨트킷을 이해하는 데 필요한 모든 배경 지식을 다룹니다. 새로운 기술을 배우기 전에 '왜 이 기술이 만들어졌는지', '기존의 방법과 무엇이 다른지'를 이해하는 것이 중요합니다."
+  },
+  "collapsed": false,
+  "collapsible": false
+}

@@ -1,0 +1,10 @@
+{
+  "label": "3장. 스벨트 기초 문법",
+  "position": 20,
+  "link": {
+    "type": "generated-index",
+    "description": "이 장에서는 스벨트킷의 기초 문법과 구조를 다룹니다. 스벨트킷을 처음 접하는 개발자들이 이해하기 쉽도록 기본적인 개념과 사용법을 설명합니다."
+  },
+  "collapsed": false,
+  "collapsible": false
+}
