@@ -1,4 +1,4 @@
-# Prettier 독학
+# Prettier 바이블
 
 코드 스타일의 일관성은 개발자에게 필수적인 요소입니다. 매번 들여쓰기를 고민하고, 따옴표 스타일을 맞추고, 세미콜론을 붙였다 뺐다 하는 시간이 얼마나 비생산적인지 아시나요? Prettier는 이런 모든 고민을 덜어주는 자동 코드 포맷터입니다. 이 가이드를 통해 Prettier의 모든 기능을 체계적으로 배우고, 개발 워크플로우를 한층 더 효율적으로 만들어보세요.
 
@@ -190,12 +190,12 @@ prettier --single-quote --trailing-comma es5 --write src/**/*.js
 세미콜론 사용 여부를 설정합니다.
 
 ```javascript title="example.js (semi: true)"
-const message = "Hello World";
+const message = 'Hello World';
 console.log(message);
 ```
 
 ```javascript title="example.js (semi: false)"
-const message = "Hello World";
+const message = 'Hello World';
 console.log(message);
 ```
 
@@ -203,7 +203,7 @@ console.log(message);
 홑따옴표와 쌍따옴표 선택을 설정합니다.
 
 ```javascript title="example.js (singleQuote: true)"
-const greeting = "Hello World";
+const greeting = 'Hello World';
 const template = `Welcome ${name}!`;
 ```
 
@@ -216,9 +216,9 @@ const template = `Welcome ${name}!`;
 
 ```javascript title="example.js (trailingComma: 'all')"
 const config = {
-  name: "myApp",
-  version: "1.0.0",
-  dependencies: ["react", "vue"],
+  name: 'myApp',
+  version: '1.0.0',
+  dependencies: ['react', 'vue'],
 };
 ```
 
@@ -228,12 +228,12 @@ const config = {
 화살표 함수의 매개변수 괄호 처리를 설정합니다.
 
 ```javascript title="example.js (arrowParens: 'always')"
-const square = (x) => x * x;
+const square = x => x * x;
 const add = (a, b) => a + b;
 ```
 
 ```javascript title="example.js (arrowParens: 'avoid')"
-const square = (x) => x * x;
+const square = x => x * x;
 const add = (a, b) => a + b;
 ```
 
@@ -241,11 +241,11 @@ const add = (a, b) => a + b;
 객체 리터럴의 괄호 내부 공백을 설정합니다.
 
 ```javascript title="example.js (bracketSpacing: true)"
-const obj = { foo: "bar" };
+const obj = { foo: 'bar' };
 ```
 
 ```javascript title="example.js (bracketSpacing: false)"
-const obj = { foo: "bar" };
+const obj = { foo: 'bar' };
 ```
 
 ### 3.3 설정 파일 형식
@@ -270,7 +270,7 @@ module.exports = {
   useTabs: false,
   semi: true,
   singleQuote: true,
-  trailingComma: "es5",
+  trailingComma: 'es5',
 };
 ```
 
@@ -280,7 +280,7 @@ tabWidth: 2
 useTabs: false
 semi: true
 singleQuote: true
-trailingComma: "es5"
+trailingComma: 'es5'
 ```
 
 ## 4. CLI 사용법
@@ -427,9 +427,7 @@ const niceArray = [1, 2, 3, 4, 5];
 </div>
 
 <!-- 일반적인 HTML은 포맷팅됨 -->
-<div class="formatted" style="color: green; background: yellow;">
-  Nicely formatted
-</div>
+<div class="formatted" style="color: green; background: yellow;">Nicely formatted</div>
 ```
 
 ```css title="example.css"
@@ -617,10 +615,10 @@ module.exports = {
   useTabs: false,
   semi: true,
   singleQuote: true,
-  trailingComma: "es5",
+  trailingComma: 'es5',
   bracketSpacing: true,
-  arrowParens: "avoid",
-  endOfLine: "lf",
+  arrowParens: 'avoid',
+  endOfLine: 'lf',
 };
 ```
 
@@ -696,8 +694,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: "18"
-          cache: "npm"
+          node-version: '18'
+          cache: 'npm'
 
       - run: npm ci
       - run: npm run format:check
@@ -731,11 +729,7 @@ npm install --save-dev eslint-config-prettier
 
 ```json title=".eslintrc.json"
 {
-  "extends": [
-    "eslint:recommended",
-    "@typescript-eslint/recommended",
-    "prettier"
-  ],
+  "extends": ["eslint:recommended", "@typescript-eslint/recommended", "prettier"],
   "rules": {
     // Prettier와 충돌하는 규칙들이 자동으로 비활성화됨
   }
@@ -783,14 +777,14 @@ ESLint가 논리적 오류를 잡고, Prettier가 스타일을 정리하는 협�
 
 ```javascript title="example.js"
 // ESLint가 잡는 문제들
-const unusedVariable = "never used"; // no-unused-vars
+const unusedVariable = 'never used'; // no-unused-vars
 if (true) {
   // no-constant-condition
-  console.log("always true");
+  console.log('always true');
 }
 
 // Prettier가 정리하는 문제들
-const obj = { name: "John", age: 30 }; // 공백과 형식
+const obj = { name: 'John', age: 30 }; // 공백과 형식
 const arr = [1, 2, 3, 4, 5]; // 배열 형식
 ```
 
@@ -798,14 +792,14 @@ const arr = [1, 2, 3, 4, 5]; // 배열 형식
 
 ```javascript title="example.js (정리 후)"
 // ESLint 경고는 여전히 남음 (논리적 문제)
-const unusedVariable = "never used"; // 경고: unused variable
+const unusedVariable = 'never used'; // 경고: unused variable
 if (true) {
   // 경고: constant condition
-  console.log("always true");
+  console.log('always true');
 }
 
 // Prettier가 자동으로 정리
-const obj = { name: "John", age: 30 };
+const obj = { name: 'John', age: 30 };
 const arr = [1, 2, 3, 4, 5];
 ```
 
@@ -843,13 +837,7 @@ npm install --save-dev @trivago/prettier-plugin-sort-imports
 ```json title=".prettierrc"
 {
   "plugins": ["@trivago/prettier-plugin-sort-imports"],
-  "importOrder": [
-    "^react$",
-    "^react-dom$",
-    "<THIRD_PARTY_MODULES>",
-    "^@/(.*)$",
-    "^[./]"
-  ],
+  "importOrder": ["^react$", "^react-dom$", "<THIRD_PARTY_MODULES>", "^@/(.*)$", "^[./]"],
   "importOrderSeparation": true,
   "importOrderSortSpecifiers": true
 }
@@ -858,26 +846,26 @@ npm install --save-dev @trivago/prettier-plugin-sort-imports
 **정렬 전:**
 
 ```javascript title="example.js"
-import { useState } from "react";
-import lodash from "lodash";
-import { Button } from "./Button";
-import axios from "axios";
-import React from "react";
-import { utils } from "@/utils";
+import { useState } from 'react';
+import lodash from 'lodash';
+import { Button } from './Button';
+import axios from 'axios';
+import React from 'react';
+import { utils } from '@/utils';
 ```
 
 **정렬 후:**
 
 ```javascript title="example.js"
-import React from "react";
-import { useState } from "react";
+import React from 'react';
+import { useState } from 'react';
 
-import axios from "axios";
-import lodash from "lodash";
+import axios from 'axios';
+import lodash from 'lodash';
 
-import { utils } from "@/utils";
+import { utils } from '@/utils';
 
-import { Button } from "./Button";
+import { Button } from './Button';
 ```
 
 ### 10.3 캐시 활용
@@ -989,15 +977,15 @@ prettier --loglevel debug --write src/**/*.js
 **설정 파일 검증**
 
 ```javascript title="validate-prettier-config.js"
-const prettier = require("prettier");
-const fs = require("fs");
+const prettier = require('prettier');
+const fs = require('fs');
 
 try {
-  const config = JSON.parse(fs.readFileSync(".prettierrc", "utf8"));
+  const config = JSON.parse(fs.readFileSync('.prettierrc', 'utf8'));
   const resolved = prettier.resolveConfig.sync(process.cwd());
-  console.log("Config is valid:", resolved);
+  console.log('Config is valid:', resolved);
 } catch (error) {
-  console.error("Config error:", error.message);
+  console.error('Config error:', error.message);
 }
 ```
 
@@ -1061,9 +1049,9 @@ coverage/
 
 ```javascript title="src/example.js"
 const messy = {
-  name: "John",
+  name: 'John',
   age: 30,
-  hobbies: ["reading", "coding", "gaming"],
+  hobbies: ['reading', 'coding', 'gaming'],
 };
 
 function greet(name) {
@@ -1074,7 +1062,7 @@ const arrow = (x, y) => {
   return x + y;
 };
 
-console.log(greet("World"));
+console.log(greet('World'));
 ```
 
 **7단계: 포맷팅 실행**
@@ -1143,8 +1131,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: "18"
-          cache: "npm"
+          node-version: '18'
+          cache: 'npm'
 
       - run: npm ci
       - run: npm run lint
@@ -1157,7 +1145,7 @@ jobs:
 ### A. 공식 문서 링크
 
 - **Prettier 공식 사이트**: https://prettier.io/
-- **설정 옵션 레퍼런스**: https://prettier.io/docs/en/options.html
+- **설정 옵션 바이블**: https://prettier.io/docs/en/options.html
 - **CLI 명령어 전체 목록**: https://prettier.io/docs/en/cli.html
 - **에디터 통합 가이드**: https://prettier.io/docs/en/editors.html
 - **Prettier Playground**: https://prettier.io/playground/

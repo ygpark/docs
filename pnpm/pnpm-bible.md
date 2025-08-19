@@ -1,4 +1,4 @@
-# 초보자를 위한 pnpm 완벽 가이드
+# pnpm 바이블
 
 ## 학습 목표
 
@@ -168,7 +168,7 @@ node_modules/
 ### 4.3 락파일 (pnpm-lock.yaml)
 
 ```yaml title="pnpm-lock.yaml 예시"
-lockfileVersion: "6.0"
+lockfileVersion: '6.0'
 
 dependencies:
   react:
@@ -191,9 +191,9 @@ packages:
 
 ```yaml title="pnpm-workspace.yaml"
 packages:
-  - "packages/*"
-  - "apps/*"
-  - "!**/test/**"
+  - 'packages/*'
+  - 'apps/*'
+  - '!**/test/**'
 ```
 
 ```json title="루트 package.json"
@@ -506,8 +506,8 @@ pnpm dev
 
 ```yaml title="pnpm-workspace.yaml"
 packages:
-  - "packages/*"
-  - "apps/*"
+  - 'packages/*'
+  - 'apps/*'
 ```
 
 ```bash title="모노레포 설정"
