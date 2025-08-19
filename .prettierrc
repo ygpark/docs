@@ -1,0 +1,61 @@
+{
+  "useTabs": false,
+  "tabWidth": 2,
+  "singleQuote": true,
+  "trailingComma": "es5",
+  "printWidth": 80,
+  "semi": true,
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "endOfLine": "lf",
+  "jsxSingleQuote": true,
+  "bracketSameLine": false,
+
+  "overrides": [
+    {
+      "files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
+      "options": {
+        "printWidth": 80,
+        "htmlWhitespaceSensitivity": "css",
+        "jsxBracketSameLine": false
+      }
+    },
+    {
+      "files": ["*.json", "*.jsonc"],
+      "options": {
+        "singleQuote": false,
+        "trailingComma": "none"
+      }
+    },
+    {
+      "files": "*.md",
+      "options": {
+        "printWidth": 100,
+        "proseWrap": "preserve",
+        "embeddedLanguageFormatting": "auto"
+      }
+    },
+    {
+      "files": ["*.css", "*.scss", "*.less"],
+      "options": {
+        "singleQuote": false
+      }
+    },
+    {
+      "files": ["*.svelte"],
+      "options": {
+        "parser": "svelte",
+        "bracketSameLine": false,
+        "svelteStrictMode": false,
+        "svelteBracketNewLine": false
+      }
+    },
+    {
+      "files": ["*.yaml", "*.yml"],
+      "options": {
+        "singleQuote": false,
+        "bracketSpacing": false
+      }
+    }
+  ]
+}
