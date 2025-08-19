@@ -1,5 +1,5 @@
 ---
-title: '3. 기본 자료형 - 숫자, 문자열, 불린'
+title: '3. 기본 자료형'
 slug: python-basic-data-types
 description: '파이썬의 핵심 자료형인 숫자형(정수, 실수), 문자열, 불린형의 특징과 활용법을 실습과 함께 완전 마스터'
 keywords:

@@ -1,5 +1,5 @@
 ---
-title: '파이썬 설치 및 개발환경 구축 완벽 가이드 2025'
+title: '1. 파이썬 시작하기'
 slug: python-installation-setup-guide
 description: '파이썬 설치부터 첫 프로그램 실행까지. 개발 환경 구축과 기본 사용법을 배우는 파이썬 입문 첫 단계'
 keywords:

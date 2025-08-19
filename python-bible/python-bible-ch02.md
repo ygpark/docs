@@ -1,5 +1,5 @@
 ---
-title: '2. 파이썬 기본 문법 - 변수, 주석, 입출력'
+title: '2. 파이썬 기본 문법'
 slug: python-basic-syntax-variables-comments
 description: '파이썬의 변수, 주석, 들여쓰기, input/print 함수 등 핵심 기본 문법을 실습과 함께 완벽 마스터'
 keywords:
