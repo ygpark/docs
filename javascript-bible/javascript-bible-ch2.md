@@ -1,5 +1,5 @@
 ---
-title: '2. 값, 타입, 연산자'
+title: '2장: 값, 타입, 연산자'
 slug: javascript-bible-values-types-operators
 description: '자바스크립트의 기본 데이터 타입과 연산자를 배우고, ES2020+의 새로운 기능들을 실습을 통해 익혀보세요.'
 keywords:

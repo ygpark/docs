@@ -16,7 +16,7 @@ keywords:
     '개발 커뮤니티',
     '실습 플랫폼',
   ]
-sidebar_position: 19
+sidebar_position: 21
 ---
 
 # 부록 C: 추가 학습 자료

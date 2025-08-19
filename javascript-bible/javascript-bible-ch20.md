@@ -14,7 +14,7 @@ keywords:
     '모던자바스크립트',
     '치트시트',
   ]
-sidebar_position: 2
+sidebar_position: 20
 ---
 
 # 부록 B: 자바스크립트 레퍼런스

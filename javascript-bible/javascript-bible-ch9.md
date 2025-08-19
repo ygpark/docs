@@ -1,5 +1,5 @@
 ---
-title: '9. 에러 처리와 디버깅'
+title: '9장: 에러 처리와 디버깅'
 slug: javascript-bible-error-handling-debugging
 description: '자바스크립트에서 try-catch문을 활용한 에러 처리 방법과 효과적인 디버깅 기법을 학습합니다. 커스텀 에러 생성부터 개발자 도구 활용까지 실전 디버깅 스킬을 익혀보세요.'
 keywords:

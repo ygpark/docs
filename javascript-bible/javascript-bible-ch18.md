@@ -1,1108 +1,1325 @@
 ---
-title: '18장: 현대 자바스크립트 생태계'
-slug: javascript-bible-modern-ecosystem
-description: '현대 자바스크립트 생태계를 탐험해보세요. TypeScript, 프레임워크, 테스팅, 성능 최적화, 그리고 최신 런타임까지 다루는 포괄적인 가이드입니다.'
+title: '18장: 프로젝트 2 - 날씨 앱'
+slug: javascript-bible-weather-app-project
+description: 'API 연동과 비동기 처리를 활용하여 실용적인 날씨 앱을 만들어보세요. OpenWeatherMap API를 사용하고 ES6+ 문법으로 깔끔한 코드를 작성합니다.'
 keywords:
   [
-    'TypeScript',
-    '자바스크립트 프레임워크',
-    'React',
-    'Vue',
-    'Svelte',
-    '테스팅',
-    'Jest',
-    'Vitest',
-    '성능 최적화',
-    'Deno',
-    'Bun',
-    '현대 웹 개발',
-    '자바스크립트 생태계',
+    'JavaScript 날씨 앱',
+    'API 연동',
+    '비동기 처리',
+    'fetch API',
+    'OpenWeatherMap',
+    'async await',
+    'DOM 조작',
+    'JavaScript 프로젝트',
+    'ES6 문법',
+    '에러 처리',
   ]
 sidebar_position: 18
 ---
 
-# 18장: 현대 자바스크립트 생태계
+# 18장: 프로젝트 2 - 날씨 앱
 
-자바스크립트는 단순한 웹 페이지 스크립팅 언어에서 시작해 현재는 프론트엔드, 백엔드, 모바일, 데스크톱 앱 개발까지 가능한 범용 언어로 발전했습니다. 이 장에서는 현대 자바스크립트 개발에 필수적인 도구들과 기술들을 살펴보고, 여러분이 앞으로 나아갈 방향을 제시해드리겠습니다. 복잡해 보일 수 있지만, 차근차근 따라가다 보면 현대 웹 개발의 전체적인 그림을 그릴 수 있을 거예요.
+이번 장에서는 실제 날씨 API를 연동하여 동작하는 날씨 앱을 만들어보겠습니다. OpenWeatherMap API를 사용해 현재 날씨 정보를 가져오고, 사용자 친화적인 인터페이스로 표시하는 완전한 웹 애플리케이션을 구축합니다. 이 프로젝트를 통해 API 연동, 비동기 처리, 에러 핸들링, 그리고 모던 자바스크립트 문법을 실전에서 활용하는 방법을 익힐 수 있습니다.
 
 ---
 
-## TypeScript 소개
+## 18.1 프로젝트 개요와 설계
 
-TypeScript는 자바스크립트에 타입 시스템을 추가한 언어입니다. 코드를 작성할 때 변수나 함수의 타입을 명시함으로써 개발 과정에서 오류를 미리 찾아낼 수 있어요. 마치 자바스크립트에 안전장치를 더한 것과 같습니다.
+날씨 앱 프로젝트의 전체적인 구조와 기능을 설계해보겠습니다. 사용자가 도시명을 입력하면 해당 지역의 현재 날씨 정보를 보여주는 간단하면서도 실용적인 앱을 만들 예정입니다.
 
-### TypeScript의 기본 문법
+### 주요 기능 정의
 
-간단한 TypeScript 코드를 통해 자바스크립트와의 차이점을 알아봅시다.
+우리가 구현할 날씨 앱의 핵심 기능들을 먼저 정의해보겠습니다. 명확한 기능 정의는 개발 과정에서 방향성을 잃지 않게 도와줍니다.
 
-```typescript title="basic-typescript.ts"
-// 기본 타입 선언
-let name: string = '김개발';
-let age: number = 25;
-let isStudent: boolean = true;
+```javascript title="기능 요구사항 정의"
+// 날씨 앱 주요 기능 목록
+const FEATURES = {
+  // 기본 기능
+  SEARCH_CITY: '도시명으로 날씨 검색',
+  DISPLAY_CURRENT: '현재 날씨 정보 표시',
+  SHOW_DETAILS: '상세 정보 (습도, 바람 등)',
 
-// 함수 타입 정의
-function greet(name: string): string {
-  return `안녕하세요, ${name}님!`;
-}
+  // 사용자 경험 개선
+  LOADING_STATE: '로딩 상태 표시',
+  ERROR_HANDLING: '에러 메시지 처리',
+  RESPONSIVE_UI: '반응형 디자인',
 
-// 인터페이스 정의
-interface User {
-  id: number;
-  name: string;
-  email?: string; // 선택적 속성
-}
-
-// 객체 타입 활용
-const user: User = {
-  id: 1,
-  name: '이개발자',
+  // 추가 기능 (선택사항)
+  GEOLOCATION: '현재 위치 기반 날씨',
+  FAVORITES: '즐겨찾는 도시 저장',
+  UNITS_TOGGLE: '온도 단위 변경',
 };
 
-console.log(greet(user.name));
+// API 응답 데이터 구조 예시
+const SAMPLE_WEATHER_DATA = {
+  name: 'Seoul',
+  main: {
+    temp: 15.5,
+    feels_like: 14.2,
+    humidity: 65,
+    pressure: 1013,
+  },
+  weather: [
+    {
+      main: 'Clouds',
+      description: 'few clouds',
+      icon: '02d',
+    },
+  ],
+  wind: {
+    speed: 3.2,
+    deg: 180,
+  },
+};
 ```
 
-### 실용적인 TypeScript 예제
+### 프로젝트 구조 설계
 
-실제 프로젝트에서 자주 사용되는 TypeScript 패턴들을 살펴보겠습니다.
+효율적인 개발을 위해 파일 구조와 모듈 분리 방법을 계획해보겠습니다.
 
-```typescript title="practical-typescript.ts"
-// 유니온 타입과 타입 가드
-type Status = 'loading' | 'success' | 'error';
+```javascript title="프로젝트 구조"
+// 파일 구조 계획
+const PROJECT_STRUCTURE = {
+  'index.html': 'HTML 마크업',
+  'styles.css': 'TailwindCSS 스타일링',
+  'scripts/': {
+    'app.js': '메인 애플리케이션 로직',
+    'api.js': 'API 호출 관련 함수',
+    'ui.js': 'UI 조작 함수',
+    'utils.js': '유틸리티 함수',
+    'config.js': '설정 상수',
+  },
+};
 
-interface ApiResponse<T> {
-  status: Status;
-  data?: T;
-  message?: string;
-}
-
-// 제네릭 함수
-function fetchData<T>(url: string): Promise<ApiResponse<T>> {
-  return fetch(url)
-    .then(response => response.json())
-    .then(data => ({
-      status: 'success' as Status,
-      data,
-    }))
-    .catch(error => ({
-      status: 'error' as Status,
-      message: error.message,
-    }));
-}
-
-// 사용 예시
-interface UserData {
-  id: number;
-  username: string;
-}
-
-fetchData<UserData>('/api/user/1').then(response => {
-  if (response.status === 'success' && response.data) {
-    console.log(`사용자: ${response.data.username}`);
-  }
-});
+// 모듈별 책임 분리
+const MODULE_RESPONSIBILITIES = {
+  API_MODULE: ['날씨 데이터 API 호출', '에러 응답 처리', '데이터 변환'],
+  UI_MODULE: ['DOM 요소 조작', '사용자 인터랙션 처리', '화면 업데이트'],
+  UTILS_MODULE: ['온도 단위 변환', '날짜 포매팅', '입력값 검증'],
+};
 ```
 
 ---
 
-## 프레임워크 개요
+## 18.2 OpenWeatherMap API 설정
 
-현대 웹 개발에서는 다양한 프레임워크와 라이브러리가 사용됩니다. 각각의 특징과 장단점을 이해하고 프로젝트에 맞는 선택을 하는 것이 중요해요.
+실제 날씨 데이터를 가져오기 위해 OpenWeatherMap API를 설정하고 사용법을 익혀보겠습니다.
 
-### React 기본 개념
+### API 키 발급과 기본 설정
 
-React는 컴포넌트 기반의 사용자 인터페이스 라이브러리입니다. 재사용 가능한 컴포넌트를 만들어 복잡한 UI를 구성할 수 있어요.
+OpenWeatherMap에서 API 키를 발급받고 기본적인 API 호출 구조를 만들어보겠습니다.
 
-```jsx title="react-component.jsx"
-import React, { useState, useEffect } from 'react';
+```javascript title="config.js"
+// API 설정 상수
+const API_CONFIG = {
+  BASE_URL: 'https://api.openweathermap.org/data/2.5',
+  API_KEY: 'YOUR_API_KEY_HERE', // 실제 키로 교체 필요
+  DEFAULT_UNITS: 'metric', // metric, imperial, kelvin
+  DEFAULT_LANG: 'kr',
+};
 
-// 함수형 컴포넌트와 훅 사용
-function TodoApp() {
-  const [todos, setTodos] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+// API 엔드포인트 정의
+const API_ENDPOINTS = {
+  CURRENT_WEATHER: '/weather',
+  FORECAST: '/forecast',
+  GEOCODING: '/geo/1.0/direct',
+};
 
-  // 할 일 추가
-  const addTodo = () => {
-    if (inputValue.trim()) {
-      setTodos([
-        ...todos,
-        {
-          id: Date.now(),
-          text: inputValue,
-          completed: false,
-        },
-      ]);
-      setInputValue('');
+// 요청 옵션 기본값
+const DEFAULT_REQUEST_OPTIONS = {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+};
+
+// 지원하는 온도 단위
+const TEMPERATURE_UNITS = {
+  CELSIUS: { key: 'metric', symbol: '°C' },
+  FAHRENHEIT: { key: 'imperial', symbol: '°F' },
+  KELVIN: { key: 'kelvin', symbol: 'K' },
+};
+```
+
+### API 호출 함수 구현
+
+실제 API를 호출하고 응답을 처리하는 함수들을 만들어보겠습니다.
+
+```javascript title="api.js"
+// 기본 API 호출 함수
+async function fetchWeatherData(city) {
+  const url = buildWeatherURL(city);
+
+  try {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const data = await response.json();
+    return transformWeatherData(data);
+  } catch (error) {
+    console.error('Weather API Error:', error);
+    throw error;
+  }
+}
+
+// URL 빌더 함수
+function buildWeatherURL(city) {
+  const params = new URLSearchParams({
+    q: city,
+    appid: API_CONFIG.API_KEY,
+    units: API_CONFIG.DEFAULT_UNITS,
+    lang: API_CONFIG.DEFAULT_LANG,
+  });
+
+  return `${API_CONFIG.BASE_URL}${API_ENDPOINTS.CURRENT_WEATHER}?${params}`;
+}
+
+// 데이터 변환 함수
+function transformWeatherData(rawData) {
+  return {
+    city: rawData.name,
+    country: rawData.sys.country,
+    temperature: Math.round(rawData.main.temp),
+    description: rawData.weather[0].description,
+    icon: rawData.weather[0].icon,
+    humidity: rawData.main.humidity,
+    windSpeed: rawData.wind.speed,
+    pressure: rawData.main.pressure,
   };
+}
+```
 
-  // 완료 상태 토글
-  const toggleTodo = id => {
-    setTodos(todos.map(todo => (todo.id === id ? { ...todo, completed: !todo.completed } : todo)));
-  };
+---
 
-  return (
-    <div className='max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg'>
-      <h1 className='text-2xl font-bold mb-4'>할 일 목록</h1>
+## 18.3 HTML 구조와 TailwindCSS 스타일링
 
-      <div className='flex mb-4'>
-        <input
-          type='text'
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          className='flex-1 px-3 py-2 border rounded-l-md'
-          placeholder='새 할 일 입력'
-        />
-        <button
-          onClick={addTodo}
-          className='px-4 py-2 bg-blue-500 text-white rounded-r-md hover:bg-blue-600'
+사용자 인터페이스의 HTML 구조를 만들고 TailwindCSS로 스타일링해보겠습니다.
+
+### 기본 HTML 마크업
+
+날씨 앱의 전체적인 레이아웃과 주요 UI 요소들을 구성해보겠습니다.
+
+```html title="index.html"
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>날씨 앱</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+      <!-- 헤더 -->
+      <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-white mb-2">날씨 앱</h1>
+        <p class="text-blue-100">전 세계 날씨를 확인하세요</p>
+      </header>
+
+      <!-- 검색 영역 -->
+      <div class="max-w-md mx-auto mb-8">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <form id="search-form" class="space-y-4">
+            <input
+              type="text"
+              id="city-input"
+              placeholder="도시명을 입력하세요"
+              class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            <button
+              type="submit"
+              class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              날씨 검색
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 날씨 정보 표시 영역 -->
+      <div id="weather-display" class="max-w-lg mx-auto">
+        <!-- 동적으로 생성될 내용 -->
+      </div>
+    </div>
+  </body>
+</html>
+```
+
+### 동적 UI 컴포넌트 생성
+
+날씨 정보를 표시하기 위한 동적 UI 컴포넌트들을 만들어보겠습니다.
+
+```javascript title="ui.js"
+// 날씨 카드 생성 함수
+function createWeatherCard(weatherData) {
+  return `
+    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
+      <div class="mb-4">
+        <h2 class="text-2xl font-bold text-gray-800">${weatherData.city}</h2>
+        <p class="text-gray-600">${weatherData.country}</p>
+      </div>
+      
+      <div class="mb-6">
+        <img 
+          src="https://openweathermap.org/img/wn/${weatherData.icon}@2x.png"
+          alt="${weatherData.description}"
+          class="mx-auto mb-2"
         >
-          추가
-        </button>
+        <div class="text-4xl font-bold text-gray-800 mb-2">
+          ${weatherData.temperature}°C
+        </div>
+        <p class="text-gray-600 capitalize">${weatherData.description}</p>
       </div>
-
-      <ul className='space-y-2'>
-        {todos.map(todo => (
-          <li
-            key={todo.id}
-            onClick={() => toggleTodo(todo.id)}
-            className={`p-2 rounded cursor-pointer ${
-              todo.completed
-                ? 'bg-green-100 line-through text-gray-500'
-                : 'bg-gray-100 hover:bg-gray-200'
-            }`}
-          >
-            {todo.text}
-          </li>
-        ))}
-      </ul>
+      
+      <div class="grid grid-cols-3 gap-4 text-sm">
+        <div class="bg-blue-50 p-3 rounded">
+          <div class="text-blue-600 font-semibold">습도</div>
+          <div class="text-gray-800">${weatherData.humidity}%</div>
+        </div>
+        <div class="bg-blue-50 p-3 rounded">
+          <div class="text-blue-600 font-semibold">바람</div>
+          <div class="text-gray-800">${weatherData.windSpeed} m/s</div>
+        </div>
+        <div class="bg-blue-50 p-3 rounded">
+          <div class="text-blue-600 font-semibold">기압</div>
+          <div class="text-gray-800">${weatherData.pressure} hPa</div>
+        </div>
+      </div>
     </div>
-  );
+  `;
 }
 
-export default TodoApp;
+// 로딩 스피너 생성
+function createLoadingSpinner() {
+  return `
+    <div class="bg-white rounded-lg shadow-lg p-8 text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+      <p class="text-gray-600">날씨 정보를 가져오는 중...</p>
+    </div>
+  `;
+}
 ```
 
-### Vue.js 기본 구조
+---
 
-Vue.js는 점진적으로 도입할 수 있는 프레임워크로, 템플릿 기반의 직관적인 문법을 제공합니다.
+## 18.4 비동기 처리와 상태 관리
 
-```vue title="vue-component.vue"
-<template>
-  <div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
-    <h1 class="text-2xl font-bold mb-4">{{ title }}</h1>
+앱의 상태를 관리하고 비동기 작업을 효율적으로 처리하는 방법을 알아보겠습니다.
 
-    <div class="flex mb-4">
-      <input
-        v-model="newItem"
-        @keyup.enter="addItem"
-        class="flex-1 px-3 py-2 border rounded-l-md"
-        placeholder="새 항목 입력"
-      />
-      <button
-        @click="addItem"
-        class="px-4 py-2 bg-green-500 text-white rounded-r-md hover:bg-green-600"
-      >
-        추가
-      </button>
-    </div>
+### 앱 상태 관리 시스템
 
-    <ul class="space-y-2">
-      <li
-        v-for="item in items"
-        :key="item.id"
-        @click="toggleItem(item.id)"
-        :class="[
-          'p-2 rounded cursor-pointer transition-colors',
-          item.completed
-            ? 'bg-green-100 line-through text-gray-500'
-            : 'bg-gray-100 hover:bg-gray-200',
-        ]"
-      >
-        {{ item.text }}
-      </li>
-    </ul>
-  </div>
-</template>
+애플리케이션의 다양한 상태를 체계적으로 관리하는 시스템을 구축해보겠습니다.
 
-<script>
-export default {
-  name: 'ItemList',
-  data() {
-    return {
-      title: '목록 관리',
-      newItem: '',
-      items: [],
-    };
+```javascript title="state.js"
+// 앱 상태 관리 객체
+const AppState = {
+  // 현재 상태
+  current: {
+    isLoading: false,
+    currentWeather: null,
+    error: null,
+    searchHistory: [],
   },
-  methods: {
-    addItem() {
-      if (this.newItem.trim()) {
-        this.items.push({
-          id: Date.now(),
-          text: this.newItem,
-          completed: false,
-        });
-        this.newItem = '';
-      }
-    },
-    toggleItem(id) {
-      const item = this.items.find(item => item.id === id);
-      if (item) {
-        item.completed = !item.completed;
-      }
-    },
+
+  // 상태 변경 함수들
+  setLoading(isLoading) {
+    this.current.isLoading = isLoading;
+    this.notify('loading', isLoading);
+  },
+
+  setWeatherData(weatherData) {
+    this.current.currentWeather = weatherData;
+    this.current.error = null;
+    this.addToHistory(weatherData.city);
+    this.notify('weather', weatherData);
+  },
+
+  setError(error) {
+    this.current.error = error;
+    this.current.currentWeather = null;
+    this.notify('error', error);
+  },
+
+  addToHistory(city) {
+    const history = this.current.searchHistory;
+    if (!history.includes(city)) {
+      history.unshift(city);
+      if (history.length > 5) history.pop();
+    }
+  },
+
+  // 상태 변경 알림
+  listeners: [],
+
+  subscribe(listener) {
+    this.listeners.push(listener);
+  },
+
+  notify(type, data) {
+    this.listeners.forEach(listener => listener(type, data));
   },
 };
-</script>
 ```
 
-### Svelte 맛보기
+### 비동기 작업 처리 패턴
 
-Svelte는 컴파일 타임에 최적화되는 혁신적인 프레임워크입니다. 런타임 오버헤드가 거의 없어 빠른 성능을 제공해요.
+Promise와 async/await를 활용한 효율적인 비동기 처리 패턴을 구현해보겠습니다.
 
-```svelte title="svelte-component.svelte"
-<script>
-  let title = "간단한 카운터";
-  let count = 0;
-  let history = [];
+```javascript title="async-handler.js"
+// 비동기 작업 래퍼 함수
+async function handleAsyncOperation(operation, errorMessage = '작업 실패') {
+  try {
+    AppState.setLoading(true);
+    const result = await operation();
+    return result;
+  } catch (error) {
+    console.error(errorMessage, error);
+    AppState.setError(error.message || errorMessage);
+    throw error;
+  } finally {
+    AppState.setLoading(false);
+  }
+}
 
-  function increment() {
-    count += 1;
-    history = [...history, { action: '증가', value: count, time: new Date() }];
+// 날씨 검색 핸들러
+async function searchWeather(city) {
+  if (!city || !city.trim()) {
+    AppState.setError('도시명을 입력해주세요');
+    return;
   }
 
-  function decrement() {
-    count -= 1;
-    history = [...history, { action: '감소', value: count, time: new Date() }];
+  const trimmedCity = city.trim();
+
+  await handleAsyncOperation(
+    () => fetchWeatherData(trimmedCity),
+    '날씨 정보를 가져올 수 없습니다'
+  ).then(weatherData => {
+    AppState.setWeatherData(weatherData);
+  });
+}
+
+// 재시도 메커니즘
+async function retryOperation(operation, maxRetries = 3, delay = 1000) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
+```
+
+---
+
+## 18.5 에러 처리와 사용자 피드백
+
+다양한 에러 상황을 처리하고 사용자에게 적절한 피드백을 제공하는 시스템을 구축해보겠습니다.
+
+### 에러 타입별 처리 시스템
+
+각각의 에러 상황에 맞는 처리 방법과 사용자 메시지를 정의해보겠습니다.
+
+```javascript title="error-handler.js"
+// 에러 타입 정의
+const ERROR_TYPES = {
+  NETWORK_ERROR: 'network',
+  API_ERROR: 'api',
+  VALIDATION_ERROR: 'validation',
+  NOT_FOUND: 'not_found',
+  RATE_LIMIT: 'rate_limit',
+};
+
+// 에러 분류 함수
+function classifyError(error) {
+  if (!navigator.onLine) {
+    return ERROR_TYPES.NETWORK_ERROR;
   }
 
-  function reset() {
-    count = 0;
-    history = [...history, { action: '리셋', value: count, time: new Date() }];
+  if (error.message.includes('404')) {
+    return ERROR_TYPES.NOT_FOUND;
   }
 
-  // 반응형 선언
-  $: isEven = count % 2 === 0;
-  $: color = count > 10 ? 'text-red-500' : count < 0 ? 'text-blue-500' : 'text-gray-800';
-</script>
+  if (error.message.includes('429')) {
+    return ERROR_TYPES.RATE_LIMIT;
+  }
 
-<div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
-  <h1 class="text-2xl font-bold mb-4">{title}</h1>
+  return ERROR_TYPES.API_ERROR;
+}
 
-  <div class="text-center mb-6">
-    <p class="text-4xl font-bold {color} mb-2">{count}</p>
-    <p class="text-sm text-gray-600">
-      현재 값은 {isEven ? '짝수' : '홀수'}입니다
-    </p>
-  </div>
+// 사용자 친화적 에러 메시지
+const ERROR_MESSAGES = {
+  [ERROR_TYPES.NETWORK_ERROR]: '인터넷 연결을 확인해주세요',
+  [ERROR_TYPES.API_ERROR]: '서버에서 응답이 없습니다',
+  [ERROR_TYPES.VALIDATION_ERROR]: '입력값을 확인해주세요',
+  [ERROR_TYPES.NOT_FOUND]: '해당 도시를 찾을 수 없습니다',
+  [ERROR_TYPES.RATE_LIMIT]: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요',
+};
 
-  <div class="flex justify-center space-x-2 mb-4">
-    <button
-      on:click={decrement}
-      class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-    >
-      -1
-    </button>
-    <button
-      on:click={reset}
-      class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-    >
-      리셋
-    </button>
-    <button
-      on:click={increment}
-      class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-    >
-      +1
-    </button>
-  </div>
+// 에러 처리 함수
+function handleError(error) {
+  const errorType = classifyError(error);
+  const message = ERROR_MESSAGES[errorType] || '알 수 없는 오류가 발생했습니다';
 
-  {#if history.length > 0}
-    <div class="mt-4">
-      <h3 class="font-semibold mb-2">최근 활동</h3>
-      <div class="max-h-32 overflow-y-auto">
-        {#each history.slice(-5) as entry}
-          <p class="text-sm text-gray-600">
-            {entry.action}: {entry.value} ({entry.time.toLocaleTimeString()})
-          </p>
-        {/each}
+  showErrorMessage(message);
+  logError(error, errorType);
+}
+```
+
+### 사용자 피드백 시스템
+
+에러 메시지와 성공 메시지를 효과적으로 표시하는 시스템을 만들어보겠습니다.
+
+```javascript title="feedback.js"
+// 에러 메시지 표시 함수
+function showErrorMessage(message) {
+  const errorHTML = `
+    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        </svg>
+        <span>${message}</span>
       </div>
     </div>
-  {/if}
-</div>
+  `;
+
+  updateWeatherDisplay(errorHTML);
+
+  // 5초 후 자동 제거
+  setTimeout(() => {
+    const errorElement = document.querySelector('.bg-red-100');
+    if (errorElement) {
+      errorElement.remove();
+    }
+  }, 5000);
+}
+
+// 성공 메시지 표시 함수
+function showSuccessMessage(message) {
+  const successHTML = `
+    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+        </svg>
+        <span>${message}</span>
+      </div>
+    </div>
+  `;
+
+  const displayElement = document.getElementById('weather-display');
+  displayElement.insertAdjacentHTML('afterbegin', successHTML);
+}
+
+// 로딩 상태 표시 함수
+function showLoadingState() {
+  updateWeatherDisplay(createLoadingSpinner());
+}
+
+// 화면 업데이트 통합 함수
+function updateWeatherDisplay(content) {
+  const displayElement = document.getElementById('weather-display');
+  displayElement.innerHTML = content;
+}
 ```
 
 ---
 
-## 테스팅 기초
+## 18.6 메인 애플리케이션 로직
 
-코드의 품질을 보장하고 버그를 줄이기 위해서는 테스트가 필수입니다. 자동화된 테스트를 통해 코드 변경 시에도 안정성을 유지할 수 있어요.
+모든 모듈을 통합하여 완전한 날씨 앱을 구성하는 메인 로직을 구현해보겠습니다.
 
-### Jest를 활용한 단위 테스트
+### 애플리케이션 초기화
 
-Jest는 가장 인기 있는 자바스크립트 테스팅 프레임워크 중 하나입니다.
+앱이 시작될 때 필요한 초기 설정과 이벤트 리스너를 등록해보겠습니다.
 
-```javascript title="math-utils.js"
-// 테스트할 함수들
-export function add(a, b) {
-  return a + b;
-}
-
-export function multiply(a, b) {
-  return a * b;
-}
-
-export function divide(a, b) {
-  if (b === 0) {
-    throw new Error('0으로 나눌 수 없습니다');
-  }
-  return a / b;
-}
-
-export function factorial(n) {
-  if (n < 0) {
-    throw new Error('음수는 팩토리얼을 계산할 수 없습니다');
-  }
-  if (n === 0 || n === 1) {
-    return 1;
-  }
-  return n * factorial(n - 1);
-}
-
-export function isPrime(num) {
-  if (num < 2) return false;
-  for (let i = 2; i <= Math.sqrt(num); i++) {
-    if (num % i === 0) return false;
-  }
-  return true;
-}
-```
-
-```javascript title="math-utils.test.js"
-import { add, multiply, divide, factorial, isPrime } from './math-utils.js';
-
-describe('수학 유틸리티 함수 테스트', () => {
-  describe('add 함수', () => {
-    test('두 양수를 더한다', () => {
-      expect(add(2, 3)).toBe(5);
-    });
-
-    test('음수와 양수를 더한다', () => {
-      expect(add(-1, 1)).toBe(0);
-    });
-
-    test('소수점 계산', () => {
-      expect(add(0.1, 0.2)).toBeCloseTo(0.3);
-    });
-  });
-
-  describe('divide 함수', () => {
-    test('정상적인 나눗셈', () => {
-      expect(divide(10, 2)).toBe(5);
-    });
-
-    test('0으로 나누면 에러 발생', () => {
-      expect(() => divide(10, 0)).toThrow('0으로 나눌 수 없습니다');
-    });
-  });
-
-  describe('factorial 함수', () => {
-    test('5! = 120', () => {
-      expect(factorial(5)).toBe(120);
-    });
-
-    test('0! = 1', () => {
-      expect(factorial(0)).toBe(1);
-    });
-
-    test('음수는 에러 발생', () => {
-      expect(() => factorial(-1)).toThrow();
-    });
-  });
-
-  describe('isPrime 함수', () => {
-    test('소수 판별', () => {
-      expect(isPrime(2)).toBe(true);
-      expect(isPrime(17)).toBe(true);
-      expect(isPrime(97)).toBe(true);
-    });
-
-    test('합성수 판별', () => {
-      expect(isPrime(4)).toBe(false);
-      expect(isPrime(15)).toBe(false);
-      expect(isPrime(100)).toBe(false);
-    });
-
-    test('경계값 테스트', () => {
-      expect(isPrime(1)).toBe(false);
-      expect(isPrime(0)).toBe(false);
-      expect(isPrime(-5)).toBe(false);
-    });
-  });
-});
-```
-
-### Vitest로 모던 테스팅
-
-Vitest는 Vite 기반의 빠른 테스트 러너로, Jest와 호환되는 API를 제공하면서도 더 빠른 성능을 자랑합니다.
-
-```javascript title="async-utils.test.js"
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-
-// 테스트할 비동기 함수들
-async function fetchUserData(userId) {
-  const response = await fetch(`/api/users/${userId}`);
-  if (!response.ok) {
-    throw new Error('사용자를 찾을 수 없습니다');
-  }
-  return response.json();
-}
-
-async function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-describe('비동기 함수 테스트', () => {
-  beforeEach(() => {
-    // fetch를 모킹
-    global.fetch = vi.fn();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
-  it('사용자 데이터를 성공적으로 가져온다', async () => {
-    const mockUser = { id: 1, name: '김개발', email: 'dev@example.com' };
-
-    fetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockUser,
-    });
-
-    const result = await fetchUserData(1);
-
-    expect(fetch).toHaveBeenCalledWith('/api/users/1');
-    expect(result).toEqual(mockUser);
-  });
-
-  it('사용자를 찾을 수 없으면 에러가 발생한다', async () => {
-    fetch.mockResolvedValueOnce({
-      ok: false,
-      status: 404,
-    });
-
-    await expect(fetchUserData(999)).rejects.toThrow('사용자를 찾을 수 없습니다');
-  });
-
-  it('딜레이 함수 테스트', async () => {
-    const start = Date.now();
-    await delay(100);
-    const end = Date.now();
-
-    expect(end - start).toBeGreaterThanOrEqual(90); // 약간의 여유 허용
-  });
-});
-```
-
----
-
-## 성능 최적화 기법
-
-웹 애플리케이션의 성능은 사용자 경험에 직접적인 영향을 미칩니다. 다양한 최적화 기법들을 알아보고 실제로 적용해봅시다.
-
-### 코드 스플리팅과 지연 로딩
-
-큰 애플리케이션을 작은 청크로 나누어 필요할 때만 로드하는 기법입니다.
-
-```javascript title="lazy-loading.js"
-// 동적 import를 활용한 코드 스플리팅
-class ComponentLoader {
+```javascript title="app.js"
+// 메인 애플리케이션 클래스
+class WeatherApp {
   constructor() {
-    this.loadedComponents = new Map();
-    this.loadingPromises = new Map();
+    this.init();
   }
 
-  async loadComponent(componentName) {
-    // 이미 로드된 컴포넌트는 캐시에서 반환
-    if (this.loadedComponents.has(componentName)) {
-      return this.loadedComponents.get(componentName);
+  // 앱 초기화
+  init() {
+    this.setupEventListeners();
+    this.setupStateSubscriptions();
+    this.checkAPIKey();
+    this.loadFromLocalStorage();
+  }
+
+  // 이벤트 리스너 설정
+  setupEventListeners() {
+    const searchForm = document.getElementById('search-form');
+    const cityInput = document.getElementById('city-input');
+
+    searchForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const city = cityInput.value.trim();
+      if (city) {
+        this.searchWeather(city);
+        cityInput.value = '';
+      }
+    });
+
+    // 엔터 키 처리
+    cityInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        searchForm.dispatchEvent(new Event('submit'));
+      }
+    });
+  }
+
+  // 상태 변경 구독 설정
+  setupStateSubscriptions() {
+    AppState.subscribe((type, data) => {
+      switch (type) {
+        case 'loading':
+          if (data) {
+            showLoadingState();
+          }
+          break;
+        case 'weather':
+          this.displayWeather(data);
+          this.saveToLocalStorage(data);
+          break;
+        case 'error':
+          handleError(new Error(data));
+          break;
+      }
+    });
+  }
+}
+```
+
+### 핵심 기능 구현
+
+날씨 검색과 데이터 표시 등 앱의 핵심 기능들을 구현해보겠습니다.
+
+```javascript title="app-core.js"
+// WeatherApp 클래스 확장
+class WeatherApp {
+  // 날씨 검색 메인 함수
+  async searchWeather(city) {
+    try {
+      // 입력값 검증
+      if (!this.validateCityInput(city)) {
+        AppState.setError('올바른 도시명을 입력해주세요');
+        return;
+      }
+
+      // API 키 확인
+      if (!this.isAPIKeyValid()) {
+        AppState.setError('API 키가 설정되지 않았습니다');
+        return;
+      }
+
+      // 날씨 데이터 가져오기
+      await searchWeather(city);
+    } catch (error) {
+      console.error('Weather search failed:', error);
+    }
+  }
+
+  // 날씨 데이터 표시
+  displayWeather(weatherData) {
+    const weatherHTML = createWeatherCard(weatherData);
+    updateWeatherDisplay(weatherHTML);
+
+    // 성공 메시지 표시
+    showSuccessMessage(`${weatherData.city}의 날씨 정보를 가져왔습니다`);
+  }
+
+  // 입력값 검증
+  validateCityInput(city) {
+    const trimmed = city.trim();
+    return trimmed.length >= 2 && /^[a-zA-Z\s가-힣]+$/.test(trimmed);
+  }
+
+  // API 키 유효성 검사
+  isAPIKeyValid() {
+    return API_CONFIG.API_KEY && API_CONFIG.API_KEY !== 'YOUR_API_KEY_HERE';
+  }
+
+  // API 키 확인 및 안내
+  checkAPIKey() {
+    if (!this.isAPIKeyValid()) {
+      const message = 'OpenWeatherMap API 키를 설정해주세요';
+      showErrorMessage(message);
+    }
+  }
+}
+
+// 앱 시작
+document.addEventListener('DOMContentLoaded', () => {
+  new WeatherApp();
+});
+```
+
+---
+
+## 18.7 로컬 스토리지와 데이터 지속성
+
+사용자 데이터를 브라우저에 저장하여 앱 재방문 시에도 정보를 유지하는 기능을 구현해보겠습니다.
+
+### 로컬 스토리지 관리
+
+사용자의 검색 기록과 즐겨찾는 도시 정보를 저장하고 관리하는 시스템을 만들어보겠습니다.
+
+```javascript title="storage.js"
+// 로컬 스토리지 키 상수
+const STORAGE_KEYS = {
+  SEARCH_HISTORY: 'weather_search_history',
+  FAVORITE_CITIES: 'weather_favorite_cities',
+  LAST_SEARCH: 'weather_last_search',
+  USER_SETTINGS: 'weather_user_settings',
+};
+
+// 로컬 스토리지 유틸리티
+const Storage = {
+  // 데이터 저장
+  save(key, data) {
+    try {
+      const jsonData = JSON.stringify(data);
+      localStorage.setItem(key, jsonData);
+      return true;
+    } catch (error) {
+      console.error('Storage save error:', error);
+      return false;
+    }
+  },
+
+  // 데이터 로드
+  load(key, defaultValue = null) {
+    try {
+      const jsonData = localStorage.getItem(key);
+      return jsonData ? JSON.parse(jsonData) : defaultValue;
+    } catch (error) {
+      console.error('Storage load error:', error);
+      return defaultValue;
+    }
+  },
+
+  // 데이터 삭제
+  remove(key) {
+    try {
+      localStorage.removeItem(key);
+      return true;
+    } catch (error) {
+      console.error('Storage remove error:', error);
+      return false;
+    }
+  },
+
+  // 모든 데이터 삭제
+  clear() {
+    try {
+      Object.values(STORAGE_KEYS).forEach(key => {
+        localStorage.removeItem(key);
+      });
+      return true;
+    } catch (error) {
+      console.error('Storage clear error:', error);
+      return false;
+    }
+  },
+};
+```
+
+### 검색 기록 관리
+
+사용자의 검색 기록을 저장하고 빠른 재검색을 위한 UI를 제공해보겠습니다.
+
+```javascript title="history.js"
+// 검색 기록 관리 클래스
+class SearchHistory {
+  constructor(maxItems = 5) {
+    this.maxItems = maxItems;
+    this.history = this.loadHistory();
+  }
+
+  // 기록 추가
+  addSearch(city) {
+    // 중복 제거
+    this.history = this.history.filter(item => item !== city);
+
+    // 최상단에 추가
+    this.history.unshift(city);
+
+    // 최대 개수 제한
+    if (this.history.length > this.maxItems) {
+      this.history = this.history.slice(0, this.maxItems);
     }
 
-    // 로딩 중인 컴포넌트는 기존 Promise 반환
-    if (this.loadingPromises.has(componentName)) {
-      return this.loadingPromises.get(componentName);
-    }
+    this.saveHistory();
+    this.updateHistoryUI();
+  }
 
-    // 새로 로드하는 컴포넌트
-    const loadingPromise = this.importComponent(componentName);
-    this.loadingPromises.set(componentName, loadingPromise);
+  // 기록 로드
+  loadHistory() {
+    return Storage.load(STORAGE_KEYS.SEARCH_HISTORY, []);
+  }
+
+  // 기록 저장
+  saveHistory() {
+    Storage.save(STORAGE_KEYS.SEARCH_HISTORY, this.history);
+  }
+
+  // 기록 UI 업데이트
+  updateHistoryUI() {
+    const historyContainer = document.getElementById('search-history');
+    if (!historyContainer || this.history.length === 0) return;
+
+    const historyHTML = this.history
+      .map(
+        city => `
+      <button 
+        class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200 transition-colors"
+        onclick="weatherApp.searchWeather('${city}')"
+      >
+        ${city}
+      </button>
+    `
+      )
+      .join('');
+
+    historyContainer.innerHTML = `
+      <div class="mb-4">
+        <h3 class="text-sm font-medium text-gray-700 mb-2">최근 검색</h3>
+        <div class="flex flex-wrap gap-2">
+          ${historyHTML}
+        </div>
+      </div>
+    `;
+  }
+}
+```
+
+---
+
+## 18.8 추가 기능과 최적화
+
+사용자 경험을 향상시키는 추가 기능들과 성능 최적화 방법을 알아보겠습니다.
+
+### 지도 연동 기능
+
+사용자가 선택한 도시의 위치를 지도에서 확인할 수 있는 기능을 추가해보겠습니다.
+
+```javascript title="geolocation.js"
+// 지리적 위치 관리 클래스
+class LocationManager {
+  constructor() {
+    this.currentPosition = null;
+  }
+
+  // 사용자 현재 위치 가져오기
+  async getCurrentLocation() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported'));
+        return;
+      }
+
+      const options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0,
+      };
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          this.currentPosition = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          };
+          resolve(this.currentPosition);
+        },
+        error => {
+          reject(error);
+        },
+        options
+      );
+    });
+  }
+
+  // 좌표로 날씨 정보 가져오기
+  async getWeatherByCoordinates(lat, lon) {
+    const url = this.buildCoordinateURL(lat, lon);
 
     try {
-      const component = await loadingPromise;
-      this.loadedComponents.set(componentName, component);
-      this.loadingPromises.delete(componentName);
-      return component;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return transformWeatherData(data);
     } catch (error) {
-      this.loadingPromises.delete(componentName);
+      console.error('Coordinate weather fetch error:', error);
       throw error;
     }
   }
 
-  async importComponent(componentName) {
-    const componentMap = {
-      UserProfile: () => import('./components/UserProfile.js'),
-      Dashboard: () => import('./components/Dashboard.js'),
-      Settings: () => import('./components/Settings.js'),
-    };
+  // 좌표 기반 URL 생성
+  buildCoordinateURL(lat, lon) {
+    const params = new URLSearchParams({
+      lat: lat,
+      lon: lon,
+      appid: API_CONFIG.API_KEY,
+      units: API_CONFIG.DEFAULT_UNITS,
+      lang: API_CONFIG.DEFAULT_LANG,
+    });
 
-    if (!componentMap[componentName]) {
-      throw new Error(`컴포넌트 ${componentName}을 찾을 수 없습니다`);
-    }
-
-    const module = await componentMap[componentName]();
-    return module.default;
-  }
-
-  // 미리 로드하기 (프리로딩)
-  preloadComponent(componentName) {
-    if (!this.loadedComponents.has(componentName) && !this.loadingPromises.has(componentName)) {
-      this.loadComponent(componentName).catch(console.error);
-    }
-  }
-}
-
-// 사용 예시
-const loader = new ComponentLoader();
-
-// 라우터에서 사용
-async function navigateToPage(pageName) {
-  const loadingElement = document.getElementById('loading');
-  const contentElement = document.getElementById('content');
-
-  try {
-    loadingElement.style.display = 'block';
-
-    const Component = await loader.loadComponent(pageName);
-    const instance = new Component();
-
-    contentElement.innerHTML = '';
-    contentElement.appendChild(instance.render());
-  } catch (error) {
-    console.error('페이지 로딩 실패:', error);
-    contentElement.innerHTML = '<p>페이지를 불러올 수 없습니다.</p>';
-  } finally {
-    loadingElement.style.display = 'none';
+    return `${API_CONFIG.BASE_URL}${API_ENDPOINTS.CURRENT_WEATHER}?${params}`;
   }
 }
 ```
 
-### 메모이제이션과 캐싱
+### 성능 최적화
 
-계산 결과를 캐싱하여 중복 연산을 방지하는 최적화 기법입니다.
+API 호출 최적화와 사용자 경험 개선을 위한 다양한 기법들을 적용해보겠습니다.
 
-```javascript title="memoization.js"
-// 메모이제이션 유틸리티
-function memoize(fn, keyGenerator = (...args) => JSON.stringify(args)) {
-  const cache = new Map();
-
-  function memoized(...args) {
-    const key = keyGenerator(...args);
-
-    if (cache.has(key)) {
-      console.log(`캐시 히트: ${key}`);
-      return cache.get(key);
-    }
-
-    console.log(`계산 수행: ${key}`);
-    const result = fn.apply(this, args);
-    cache.set(key, result);
-
-    return result;
-  }
-
-  // 캐시 관리 메서드들
-  memoized.cache = cache;
-  memoized.clear = () => cache.clear();
-  memoized.delete = key => cache.delete(key);
-  memoized.has = key => cache.has(key);
-
-  return memoized;
-}
-
-// 피보나치 수열 - 메모이제이션 적용
-const fibonacci = memoize(function (n) {
-  if (n <= 1) return n;
-  return fibonacci(n - 1) + fibonacci(n - 2);
-});
-
-// API 호출 캐싱
-const fetchUserData = memoize(
-  async function (userId) {
-    console.log(`API 호출: 사용자 ${userId}`);
-    const response = await fetch(`/api/users/${userId}`);
-    return response.json();
-  },
-  userId => `user-${userId}` // 간단한 키 생성
-);
-
-// 사용 예시
-console.log(fibonacci(40)); // 계산 수행
-console.log(fibonacci(40)); // 캐시에서 반환
-
-// TTL(Time To Live) 기능이 있는 캐시
-class TTLCache {
-  constructor(defaultTTL = 5000) {
+```javascript title="optimization.js"
+// API 호출 캐싱 시스템
+class WeatherCache {
+  constructor(maxAge = 10 * 60 * 1000) {
+    // 10분
     this.cache = new Map();
-    this.timers = new Map();
-    this.defaultTTL = defaultTTL;
+    this.maxAge = maxAge;
   }
 
-  set(key, value, ttl = this.defaultTTL) {
-    // 기존 타이머 제거
-    if (this.timers.has(key)) {
-      clearTimeout(this.timers.get(key));
-    }
+  // 캐시 키 생성
+  createKey(city) {
+    return city.toLowerCase().trim();
+  }
 
-    // 값 저장
-    this.cache.set(key, value);
+  // 캐시에서 데이터 가져오기
+  get(city) {
+    const key = this.createKey(city);
+    const cached = this.cache.get(key);
 
-    // TTL 타이머 설정
-    const timer = setTimeout(() => {
+    if (!cached) return null;
+
+    // 만료 시간 체크
+    if (Date.now() - cached.timestamp > this.maxAge) {
       this.cache.delete(key);
-      this.timers.delete(key);
-      console.log(`캐시 만료: ${key}`);
-    }, ttl);
+      return null;
+    }
 
-    this.timers.set(key, timer);
+    return cached.data;
   }
 
-  get(key) {
-    return this.cache.get(key);
+  // 캐시에 데이터 저장
+  set(city, data) {
+    const key = this.createKey(city);
+    this.cache.set(key, {
+      data: data,
+      timestamp: Date.now(),
+    });
   }
 
-  has(key) {
-    return this.cache.has(key);
-  }
-
+  // 캐시 정리
   clear() {
-    this.timers.forEach(timer => clearTimeout(timer));
     this.cache.clear();
-    this.timers.clear();
   }
 }
+
+// 디바운스 유틸리티
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+// 최적화된 검색 함수
+const optimizedSearch = debounce(async city => {
+  // 캐시 확인
+  const cached = weatherCache.get(city);
+  if (cached) {
+    AppState.setWeatherData(cached);
+    return;
+  }
+
+  // API 호출
+  await searchWeather(city);
+}, 300);
 ```
 
 ---
 
-## 최신 런타임: Deno, Bun 소개
+## 18.9 테스트와 디버깅
 
-Node.js를 넘어서는 새로운 자바스크립트 런타임들이 등장하고 있습니다. 각각의 특징과 장점을 살펴보겠습니다.
+코드의 품질을 보장하고 버그를 찾아 수정하는 방법을 알아보겠습니다.
 
-### Deno 기본 사용법
+### 기본 테스트 코드
 
-Deno는 TypeScript를 기본 지원하고 보안을 중시하는 모던 런타임입니다.
+핵심 함수들의 동작을 검증하는 간단한 테스트를 작성해보겠습니다.
 
-```typescript title="deno-example.ts"
-// Deno에서는 URL을 통해 모듈을 직접 import 가능
-import { serve } from 'https://deno.land/std@0.200.0/http/server.ts';
-import { parse } from 'https://deno.land/std@0.200.0/flags/mod.ts';
+```javascript title="tests.js"
+// 간단한 테스트 프레임워크
+class SimpleTest {
+  constructor() {
+    this.tests = [];
+    this.results = [];
+  }
 
-// 명령행 인수 파싱
-const args = parse(Deno.args, {
-  default: { port: 8000 },
-  alias: { p: 'port' },
+  // 테스트 추가
+  test(name, testFunction) {
+    this.tests.push({ name, testFunction });
+  }
+
+  // 어설션 함수
+  assert(condition, message) {
+    if (!condition) {
+      throw new Error(message || 'Assertion failed');
+    }
+  }
+
+  assertEqual(actual, expected, message) {
+    this.assert(actual === expected, message || `Expected ${expected}, but got ${actual}`);
+  }
+
+  // 모든 테스트 실행
+  runAll() {
+    console.log('Running tests...');
+    this.results = [];
+
+    this.tests.forEach(({ name, testFunction }) => {
+      try {
+        testFunction();
+        this.results.push({ name, status: 'PASS' });
+        console.log(`✅ ${name}`);
+      } catch (error) {
+        this.results.push({ name, status: 'FAIL', error: error.message });
+        console.log(`❌ ${name}: ${error.message}`);
+      }
+    });
+
+    this.printSummary();
+  }
+
+  // 결과 요약 출력
+  printSummary() {
+    const passed = this.results.filter(r => r.status === 'PASS').length;
+    const total = this.results.length;
+    console.log(`\nTest Summary: ${passed}/${total} passed`);
+  }
+}
+
+// 실제 테스트 작성
+const tester = new SimpleTest();
+
+// API URL 빌드 테스트
+tester.test('buildWeatherURL creates correct URL', () => {
+  const url = buildWeatherURL('Seoul');
+  tester.assert(url.includes('q=Seoul'), 'URL should contain city name');
+  tester.assert(url.includes('appid='), 'URL should contain API key');
 });
 
-// 간단한 웹 서버
-async function handler(req: Request): Promise<Response> {
-  const url = new URL(req.url);
+// 데이터 변환 테스트
+tester.test('transformWeatherData formats data correctly', () => {
+  const mockData = {
+    name: 'Seoul',
+    sys: { country: 'KR' },
+    main: { temp: 15.7, humidity: 65, pressure: 1013 },
+    weather: [{ description: 'clear sky', icon: '01d' }],
+    wind: { speed: 3.2 },
+  };
 
-  // API 라우팅
-  if (url.pathname === '/api/time') {
-    return new Response(
-      JSON.stringify({
-        timestamp: Date.now(),
-        date: new Date().toISOString(),
-      }),
-      {
-        headers: { 'content-type': 'application/json' },
-      }
-    );
+  const result = transformWeatherData(mockData);
+  tester.assertEqual(result.city, 'Seoul');
+  tester.assertEqual(result.temperature, 16); // rounded
+  tester.assertEqual(result.humidity, 65);
+});
+
+// 테스트 실행
+// tester.runAll();
+```
+
+### 디버깅 도구
+
+개발 과정에서 유용한 디버깅 도구와 로깅 시스템을 구현해보겠습니다.
+
+```javascript title="debug.js"
+// 디버그 로거 클래스
+class DebugLogger {
+  constructor(enabled = false) {
+    this.enabled = enabled;
+    this.logs = [];
   }
 
-  if (url.pathname === '/api/health') {
-    return new Response(
-      JSON.stringify({
-        status: 'ok',
-        uptime: performance.now(),
-      }),
-      {
-        headers: { 'content-type': 'application/json' },
-      }
-    );
+  // 로그 기록
+  log(level, message, data = null) {
+    if (!this.enabled) return;
+
+    const logEntry = {
+      timestamp: new Date().toISOString(),
+      level,
+      message,
+      data,
+    };
+
+    this.logs.push(logEntry);
+
+    // 콘솔 출력
+    const styles = {
+      INFO: 'color: blue',
+      WARN: 'color: orange',
+      ERROR: 'color: red',
+      DEBUG: 'color: gray',
+    };
+
+    console.log(`%c[${level}] ${message}`, styles[level] || 'color: black', data || '');
   }
 
-  // 정적 파일 서빙 (보안 권한 필요)
-  if (url.pathname === '/' || url.pathname === '/index.html') {
+  info(message, data) {
+    this.log('INFO', message, data);
+  }
+  warn(message, data) {
+    this.log('WARN', message, data);
+  }
+  error(message, data) {
+    this.log('ERROR', message, data);
+  }
+  debug(message, data) {
+    this.log('DEBUG', message, data);
+  }
+
+  // 로그 내보내기
+  exportLogs() {
+    return JSON.stringify(this.logs, null, 2);
+  }
+
+  // 로그 지우기
+  clearLogs() {
+    this.logs = [];
+  }
+}
+
+// 전역 디버거 인스턴스
+const debugLogger = new DebugLogger(true); // 개발 중에는 true
+
+// 네트워크 요청 모니터링
+function monitorNetworkRequests() {
+  const originalFetch = window.fetch;
+
+  window.fetch = async function (...args) {
+    const startTime = Date.now();
+    debugLogger.info('API Request started', { url: args[0] });
+
     try {
-      const html = await Deno.readTextFile('./public/index.html');
-      return new Response(html, {
-        headers: { 'content-type': 'text/html' },
+      const response = await originalFetch.apply(this, args);
+      const endTime = Date.now();
+
+      debugLogger.info('API Request completed', {
+        url: args[0],
+        status: response.status,
+        duration: `${endTime - startTime}ms`,
       });
-    } catch {
-      return new Response('파일을 찾을 수 없습니다', { status: 404 });
+
+      return response;
+    } catch (error) {
+      debugLogger.error('API Request failed', {
+        url: args[0],
+        error: error.message,
+      });
+      throw error;
+    }
+  };
+}
+
+// 개발 모드에서 모니터링 활성화
+if (window.location.hostname === 'localhost') {
+  monitorNetworkRequests();
+}
+```
+
+---
+
+## 18.10 프로젝트 완성과 배포 준비
+
+완성된 날씨 앱을 최적화하고 배포를 위한 준비 작업을 진행해보겠습니다.
+
+### 코드 리팩토링과 최종 정리
+
+전체 코드를 검토하고 개선할 부분들을 정리해보겠습니다.
+
+```javascript title="final-app.js"
+// 최종 통합된 날씨 앱
+class FinalWeatherApp {
+  constructor() {
+    this.cache = new WeatherCache();
+    this.history = new SearchHistory();
+    this.locationManager = new LocationManager();
+    this.init();
+  }
+
+  async init() {
+    // 기본 초기화
+    this.setupEventListeners();
+    this.setupStateSubscriptions();
+
+    // 개발 도구 초기화
+    if (this.isDevelopment()) {
+      this.enableDebugMode();
+    }
+
+    // 저장된 데이터 복원
+    this.restoreUserData();
+
+    // API 키 검증
+    await this.validateSetup();
+  }
+
+  // 개발 환경 확인
+  isDevelopment() {
+    return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  }
+
+  // 디버그 모드 활성화
+  enableDebugMode() {
+    debugLogger.enabled = true;
+    window.weatherApp = this; // 글로벌 접근을 위해
+    console.log('🌤️ Weather App Debug Mode Enabled');
+  }
+
+  // 사용자 데이터 복원
+  restoreUserData() {
+    this.history.updateHistoryUI();
+
+    const lastSearch = Storage.load(STORAGE_KEYS.LAST_SEARCH);
+    if (lastSearch) {
+      debugLogger.info('Restored last search', lastSearch);
     }
   }
 
-  return new Response('Not Found', { status: 404 });
+  // 설정 검증
+  async validateSetup() {
+    if (!this.isAPIKeyValid()) {
+      this.showSetupInstructions();
+      return false;
+    }
+
+    // 초기 위치 기반 날씨 시도
+    try {
+      await this.loadCurrentLocationWeather();
+    } catch (error) {
+      debugLogger.warn('Initial location weather failed', error.message);
+    }
+
+    return true;
+  }
+
+  // 설정 안내 표시
+  showSetupInstructions() {
+    const instructionsHTML = `
+      <div class="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded-lg">
+        <h3 class="font-bold mb-2">API 키 설정이 필요합니다</h3>
+        <ol class="list-decimal list-inside space-y-1 text-sm">
+          <li><a href="https://openweathermap.org/api" target="_blank" class="underline">OpenWeatherMap</a>에서 무료 API 키를 발급받으세요</li>
+          <li>config.js 파일의 API_KEY 값을 교체하세요</li>
+          <li>페이지를 새로고침하세요</li>
+        </ol>
+      </div>
+    `;
+    updateWeatherDisplay(instructionsHTML);
+  }
 }
 
-console.log(`서버가 포트 ${args.port}에서 실행 중입니다...`);
-await serve(handler, { port: args.port });
-
-// 실행 명령: deno run --allow-net --allow-read deno-example.ts
-```
-
-### Bun의 고성능 특징
-
-Bun은 극도로 빠른 성능을 자랑하는 올인원 자바스크립트 런타임입니다.
-
-```javascript title="bun-example.js"
-// Bun 내장 서버 (매우 빠름)
-const server = Bun.serve({
-  port: 3000,
-
-  async fetch(req) {
-    const url = new URL(req.url);
-
-    // 빠른 파일 서빙
-    if (url.pathname.startsWith('/static/')) {
-      const filePath = `.${url.pathname}`;
-      const file = Bun.file(filePath);
-
-      if (await file.exists()) {
-        return new Response(file);
-      }
-    }
-
-    // API 엔드포인트
-    if (url.pathname === '/api/benchmark') {
-      const start = performance.now();
-
-      // 무거운 계산 작업 시뮬레이션
-      let result = 0;
-      for (let i = 0; i < 1000000; i++) {
-        result += Math.sqrt(i);
-      }
-
-      const end = performance.now();
-
-      return Response.json({
-        result: result,
-        executionTime: `${(end - start).toFixed(2)}ms`,
-        runtime: 'Bun',
-      });
-    }
-
-    // WebSocket 업그레이드
-    if (url.pathname === '/ws') {
-      const success = server.upgrade(req);
-      if (success) {
-        return undefined;
-      }
-    }
-
-    return new Response('Hello from Bun!', {
-      headers: { 'content-type': 'text/plain' },
-    });
-  },
-
-  // WebSocket 처리
-  websocket: {
-    message(ws, message) {
-      console.log(`메시지 수신: ${message}`);
-      ws.send(`에코: ${message}`);
-    },
-
-    open(ws) {
-      console.log('WebSocket 연결됨');
-      ws.send('연결이 성공했습니다!');
-    },
-
-    close(ws) {
-      console.log('WebSocket 연결 종료');
-    },
-  },
+// 앱 시작
+document.addEventListener('DOMContentLoaded', () => {
+  window.weatherApp = new FinalWeatherApp();
 });
-
-console.log(`Bun 서버가 http://localhost:${server.port}에서 실행 중...`);
-
-// 빠른 파일 I/O 예제
-async function fileOperations() {
-  const data = { users: [], posts: [], comments: [] };
-
-  // 매우 빠른 JSON 파싱
-  const configFile = Bun.file('./config.json');
-  if (await configFile.exists()) {
-    const config = await configFile.json();
-    console.log('설정 로드됨:', config);
-  }
-
-  // 빠른 파일 쓰기
-  await Bun.write('./output.json', JSON.stringify(data, null, 2));
-  console.log('파일 저장 완료');
-}
-
-fileOperations().catch(console.error);
 ```
 
----
+### 성능 최적화 체크리스트
 
-## 실습: 간단한 TypeScript 프로젝트
+배포 전 확인해야 할 성능 최적화 항목들을 정리해보겠습니다.
 
-실제로 TypeScript를 사용하여 작은 프로젝트를 만들어봅시다. 간단한 작업 관리 시스템을 구현해보겠습니다.
+```javascript title="performance-checklist.js"
+// 성능 최적화 체크리스트
+const PERFORMANCE_CHECKLIST = {
+  // 네트워크 최적화
+  NETWORK: [
+    'API 호출 캐싱 구현',
+    'debounce로 과도한 요청 방지',
+    'Error retry 메커니즘',
+    'Request timeout 설정',
+  ],
 
-```typescript title="task-manager.ts"
-// 타입 정의
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  completed: boolean;
-  priority: 'low' | 'medium' | 'high';
-  createdAt: Date;
-  dueDate?: Date;
-}
+  // UI 최적화
+  UI: ['DOM 조작 최소화', '이미지 lazy loading', 'CSS 애니메이션 최적화', '불필요한 리렌더링 방지'],
 
-interface TaskFilter {
-  completed?: boolean;
-  priority?: Task['priority'];
-  search?: string;
-}
+  // 메모리 최적화
+  MEMORY: ['이벤트 리스너 정리', '캐시 크기 제한', '메모리 누수 체크', '전역 변수 최소화'],
 
-// 작업 관리자 클래스
-class TaskManager {
-  private tasks: Task[] = [];
-  private listeners: ((tasks: Task[]) => void)[] = [];
+  // 접근성
+  ACCESSIBILITY: ['ARIA 라벨 추가', '키보드 네비게이션', '색상 대비 확인', '스크린 리더 지원'],
+};
 
-  // 작업 추가
-  addTask(taskData: Omit<Task, 'id' | 'createdAt'>): Task {
-    const task: Task = {
-      id: crypto.randomUUID(),
-      createdAt: new Date(),
-      ...taskData,
-    };
+// 성능 측정 도구
+class PerformanceMonitor {
+  static measureAPICall(apiFunction) {
+    return async function (...args) {
+      const startTime = performance.now();
 
-    this.tasks.push(task);
-    this.notifyListeners();
-    return task;
-  }
+      try {
+        const result = await apiFunction.apply(this, args);
+        const endTime = performance.now();
 
-  // 작업 완료 토글
-  toggleTask(id: string): boolean {
-    const task = this.tasks.find(t => t.id === id);
-    if (task) {
-      task.completed = !task.completed;
-      this.notifyListeners();
-      return true;
-    }
-    return false;
-  }
+        debugLogger.info('API Performance', {
+          function: apiFunction.name,
+          duration: `${(endTime - startTime).toFixed(2)}ms`,
+          args: args,
+        });
 
-  // 작업 삭제
-  deleteTask(id: string): boolean {
-    const index = this.tasks.findIndex(t => t.id === id);
-    if (index !== -1) {
-      this.tasks.splice(index, 1);
-      this.notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  // 필터링된 작업 목록 반환
-  getTasks(filter: TaskFilter = {}): Task[] {
-    return this.tasks.filter(task => {
-      if (filter.completed !== undefined && task.completed !== filter.completed) {
-        return false;
-      }
-
-      if (filter.priority && task.priority !== filter.priority) {
-        return false;
-      }
-
-      if (filter.search) {
-        const searchLower = filter.search.toLowerCase();
-        return (
-          task.title.toLowerCase().includes(searchLower) ||
-          task.description?.toLowerCase().includes(searchLower)
-        );
-      }
-
-      return true;
-    });
-  }
-
-  // 이벤트 리스너 등록
-  onChange(listener: (tasks: Task[]) => void): () => void {
-    this.listeners.push(listener);
-
-    // 언등록 함수 반환
-    return () => {
-      const index = this.listeners.indexOf(listener);
-      if (index !== -1) {
-        this.listeners.splice(index, 1);
+        return result;
+      } catch (error) {
+        const endTime = performance.now();
+        debugLogger.error('API Error Performance', {
+          function: apiFunction.name,
+          duration: `${(endTime - startTime).toFixed(2)}ms`,
+          error: error.message,
+        });
+        throw error;
       }
     };
   }
 
-  private notifyListeners(): void {
-    this.listeners.forEach(listener => listener([...this.tasks]));
-  }
-
-  // 통계 정보
-  getStats(): { total: number; completed: number; pending: number } {
-    const completed = this.tasks.filter(t => t.completed).length;
-    return {
-      total: this.tasks.length,
-      completed,
-      pending: this.tasks.length - completed,
-    };
-  }
-}
-```
-
----
-
-## 실습: 단위 테스트 작성해보기
-
-위에서 만든 TaskManager를 위한 테스트를 작성해봅시다.
-
-```typescript title="task-manager.test.ts"
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { TaskManager } from './task-manager';
-
-describe('TaskManager', () => {
-  let taskManager: TaskManager;
-
-  beforeEach(() => {
-    taskManager = new TaskManager();
-    // crypto.randomUUID 모킹
-    vi.stubGlobal('crypto', {
-      randomUUID: vi.fn(() => 'test-id-123'),
-    });
-  });
-
-  describe('작업 추가', () => {
-    it('새 작업을 추가할 수 있다', () => {
-      const taskData = {
-        title: '테스트 작업',
-        description: '테스트 설명',
-        completed: false,
-        priority: 'medium' as const,
+  static checkMemoryUsage() {
+    if (performance.memory) {
+      const memInfo = {
+        used: (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2),
+        total: (performance.memory.totalJSHeapSize / 1024 / 1024).toFixed(2),
+        limit: (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2),
       };
 
-      const task = taskManager.addTask(taskData);
-
-      expect(task.id).toBe('test-id-123');
-      expect(task.title).toBe('테스트 작업');
-      expect(task.completed).toBe(false);
-      expect(task.createdAt).toBeInstanceOf(Date);
-    });
-
-    it('작업 추가 시 리스너가 호출된다', () => {
-      const listener = vi.fn();
-      taskManager.onChange(listener);
-
-      taskManager.addTask({
-        title: '테스트',
-        completed: false,
-        priority: 'low',
-      });
-
-      expect(listener).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('작업 토글', () => {
-    it('작업 완료 상태를 토글할 수 있다', () => {
-      const task = taskManager.addTask({
-        title: '테스트 작업',
-        completed: false,
-        priority: 'high',
-      });
-
-      const result = taskManager.toggleTask(task.id);
-      const tasks = taskManager.getTasks();
-
-      expect(result).toBe(true);
-      expect(tasks[0].completed).toBe(true);
-    });
-
-    it('존재하지 않는 작업은 토글할 수 없다', () => {
-      const result = taskManager.toggleTask('nonexistent-id');
-      expect(result).toBe(false);
-    });
-  });
-
-  describe('작업 필터링', () => {
-    beforeEach(() => {
-      taskManager.addTask({
-        title: '완료된 작업',
-        completed: true,
-        priority: 'high',
-      });
-
-      taskManager.addTask({
-        title: '미완료 작업',
-        description: '중요한 작업입니다',
-        completed: false,
-        priority: 'medium',
-      });
-    });
-
-    it('완료된 작업만 필터링할 수 있다', () => {
-      const completedTasks = taskManager.getTasks({ completed: true });
-
-      expect(completedTasks).toHaveLength(1);
-      expect(completedTasks[0].title).toBe('완료된 작업');
-    });
-
-    it('우선순위로 필터링할 수 있다', () => {
-      const highPriorityTasks = taskManager.getTasks({ priority: 'high' });
-
-      expect(highPriorityTasks).toHaveLength(1);
-      expect(highPriorityTasks[0].priority).toBe('high');
-    });
-
-    it('검색어로 필터링할 수 있다', () => {
-      const searchResults = taskManager.getTasks({ search: '중요' });
-
-      expect(searchResults).toHaveLength(1);
-      expect(searchResults[0].description).toContain('중요한');
-    });
-  });
-
-  describe('통계', () => {
-    it('작업 통계를 정확히 계산한다', () => {
-      taskManager.addTask({ title: '작업1', completed: true, priority: 'low' });
-      taskManager.addTask({ title: '작업2', completed: false, priority: 'medium' });
-      taskManager.addTask({ title: '작업3', completed: false, priority: 'high' });
-
-      const stats = taskManager.getStats();
-
-      expect(stats).toEqual({
-        total: 3,
-        completed: 1,
-        pending: 2,
-      });
-    });
-  });
-});
+      debugLogger.info('Memory Usage', memInfo);
+      return memInfo;
+    }
+  }
+}
 ```
 
-이번 장에서는 현대 자바스크립트 생태계의 핵심 요소들을 살펴봤습니다. TypeScript로 타입 안전성을 확보하고, 다양한 프레임워크의 특징을 이해하며, 테스팅을 통해 코드 품질을 보장하는 방법을 배웠어요. 또한 성능 최적화와 새로운 런타임들까지 경험해봤습니다.
+---
 
-이제 여러분은 현대 웹 개발의 전체적인 그림을 그릴 수 있고, 프로젝트에 맞는 도구와 기술을 선택할 수 있는 기초를 다졌습니다. 다음 장에서는 이 모든 지식을 바탕으로 미래를 위한 준비를 해보겠습니다.
+## 마무리
+
+이번 장에서는 OpenWeatherMap API를 활용한 완전한 날씨 앱을 구축해보았습니다. API 연동부터 시작해서 비동기 처리, 에러 핸들링, 사용자 인터페이스 구성, 그리고 성능 최적화까지 실제 웹 애플리케이션 개발에 필요한 모든 과정을 경험했습니다.
+
+특히 모던 자바스크립트의 핵심 기능들인 async/await, fetch API, 모듈 시스템, 그리고 ES6+ 문법들을 실전에서 활용하는 방법을 익혔습니다. 또한 사용자 경험을 고려한 로딩 상태 관리, 에러 메시지 표시, 로컬 스토리지 활용 등 실제 서비스에서 중요한 요소들도 함께 구현했습니다.
+
+다음 장에서는 현대 자바스크립트 생태계와 더 발전된 도구들에 대해 알아보겠습니다. TypeScript, 테스팅 프레임워크, 그리고 실무에서 사용되는 다양한 도구들을 소개하며, 지속적인 학습을 위한 방향을 제시할 예정입니다.

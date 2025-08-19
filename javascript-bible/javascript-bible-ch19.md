@@ -14,7 +14,7 @@ keywords:
     'StackBlitz',
     '개발 도구 설정',
   ]
-sidebar_position: 1
+sidebar_position: 19
 ---
 
 # 부록 A: 개발 환경 설정 가이드
