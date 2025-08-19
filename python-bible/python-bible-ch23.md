@@ -1,5 +1,5 @@
 ---
-title: 'Chapter 23. 부록 - 파이썬 설치 및 발전 가이드'
+title: '23. 부록 - 파이썬 설치 및 발전 가이드'
 slug: python-appendix-installation-guide
 description: '운영체제별 파이썬 상세 설치 가이드와 학습 및 마이그레이션 정보, 커뮤니티 리소스'
 keywords: [파이썬 설치, Windows 파이썬, macOS 파이썬, Linux 파이썬, IDE 설정, 마이그레이션 가이드]
