@@ -1,0 +1,10 @@
+{
+  "label": "파이썬 바이블",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "파이썬 바이블"
+  },
+  "collapsed": true,
+  "collapsible": true
+}
